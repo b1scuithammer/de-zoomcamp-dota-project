@@ -1,48 +1,28 @@
 #!/usr/bin/env python3
-"""
-Downloads a Kaggle dataset and uploads it to a GCS bucket.
-Expects the following environment variables:
-  - KAGGLE_DATASET   : Dataset slug, e.g. "username/dataset-name"
-  - GCS_BUCKET       : GCS bucket name (without gs:// prefix)
-  - GCS_PREFIX       : (optional) folder prefix inside the bucket, e.g. "raw/kaggle"
-  - KAGGLE_USERNAME  : Injected from Secret Manager via Cloud Run
-  - KAGGLE_KEY       : Injected from Secret Manager via Cloud Run
-"""
-
 import os
-import shutil
-import tempfile
 import zipfile
+import tempfile
 from pathlib import Path
-
+import kaggle
 from google.cloud import storage
-from kaggle.api.kaggle_api_extended import KaggleApiExtended
 
 
-def download_dataset(dataset_slug: str, download_dir: Path) -> list[Path]:
-    """Download a Kaggle dataset and return a list of extracted file paths."""
-    api = KaggleApiExtended()
-    api.authenticate()
-
+def download_dataset(dataset_slug: str, download_dir: Path) -> list:
     print(f"Downloading dataset: {dataset_slug}")
-    api.dataset_download_files(dataset_slug, path=str(download_dir), unzip=False)
+    kaggle.api.authenticate()
+    kaggle.api.dataset_download_files(dataset_slug, path=str(download_dir), unzip=False)
 
-    # Unzip any zip archives
-    files = []
-    for item in download_dir.iterdir():
+    for item in list(download_dir.iterdir()):
         if item.suffix == ".zip":
             print(f"Unzipping {item.name}")
             with zipfile.ZipFile(item, "r") as zf:
                 zf.extractall(download_dir)
             item.unlink()
-        else:
-            files.append(item)
 
     return list(download_dir.iterdir())
 
 
-def upload_to_gcs(local_files: list[Path], bucket_name: str, prefix: str) -> None:
-    """Upload local files to a GCS bucket under the given prefix."""
+def upload_to_gcs(local_files: list, bucket_name: str, prefix: str) -> None:
     client = storage.Client()
     bucket = client.bucket(bucket_name)
 

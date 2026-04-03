@@ -54,7 +54,7 @@ locals {
   # Replace these with your existing references if already defined
   project_id  = var.project_id   # assumed to exist in your config
   region      = var.region        # assumed to exist in your config
-  bucket_name = google_storage_bucket.default.name  # adjust to your bucket resource name
+  bucket_name = google_storage_bucket.raw_data.name  # adjust to your bucket resource name
 }
 
 ###############################################################################
