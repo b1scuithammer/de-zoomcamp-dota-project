@@ -1,0 +1,14 @@
+# Copy this file to terraform.tfvars and fill in real values.
+# terraform.tfvars is gitignored and must NEVER be committed.
+
+project_id     = "your-gcp-project-id"
+region         = "europe-west4"
+
+kaggle_username = "your-kaggle-username"
+kaggle_key      = "your-kaggle-api-key"
+kaggle_dataset  = "username/dataset-name"
+
+cloud_run_image = "europe-west4-docker.pkg.dev/your-gcp-project-id/kaggle-sync/job:latest"
+
+gcs_prefix     = "raw/kaggle"
+scheduler_cron = "0 2 * * 1"  # Every Monday at 02:00 UTC
