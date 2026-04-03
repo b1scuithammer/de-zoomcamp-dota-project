@@ -36,6 +36,16 @@ variable "cloud_run_image" {
   type        = string
 }
 
+variable "project_id" {
+  description = "gcp project id"
+  type        = string
+}
+
+variable "region" {
+  description = "gcp region"
+  type        = string
+}
+
 ###############################################################################
 # locals — reference your existing bucket / project locals or vars here
 ###############################################################################
