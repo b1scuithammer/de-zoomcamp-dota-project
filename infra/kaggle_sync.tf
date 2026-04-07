@@ -1,6 +1,8 @@
 resource "google_secret_manager_secret" "kaggle_username" {
   secret_id = "kaggle-username"
-  replication { auto {} }
+  replication {
+    auto {}
+  }
 }
 
 resource "google_secret_manager_secret_version" "kaggle_username" {
@@ -10,7 +12,9 @@ resource "google_secret_manager_secret_version" "kaggle_username" {
 
 resource "google_secret_manager_secret" "kaggle_key" {
   secret_id = "kaggle-key"
-  replication { auto {} }
+  replication {
+    auto {}
+  }
 }
 
 resource "google_secret_manager_secret_version" "kaggle_key" {
