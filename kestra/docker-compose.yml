@@ -1,0 +1,19 @@
+services:
+  kestra:
+    image: kestra/kestra:latest
+    pull_policy: always
+    user: "root"
+    command: server local
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/kestra-wd:/tmp/kestra-wd
+      - ${HOME}/.config/gcloud:/root/.config/gcloud
+    environment:
+      KAGGLE_USERNAME: ${KAGGLE_USERNAME}
+      KAGGLE_KEY: ${KAGGLE_KEY}
+      KAGGLE_DATASET: ${KAGGLE_DATASET}
+      GCS_BUCKET: ${GCS_BUCKET}
+      GCS_PREFIX: ${GCS_PREFIX}

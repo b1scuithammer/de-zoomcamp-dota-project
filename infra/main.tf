@@ -1,9 +1,4 @@
 terraform {
-  backend "gcs" {
-    bucket = "dtc-de-course-484919-tf-state"
-    prefix = "dota-project"
-  }
-
   required_providers {
     google = {
       source  = "hashicorp/google"

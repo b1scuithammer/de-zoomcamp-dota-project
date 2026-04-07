@@ -1,0 +1,63 @@
+id: kaggle-gcs-sync
+namespace: dota
+
+description: |
+  Downloads the Kaggle dataset weekly and uploads it to GCS.
+  Runs every Monday at 02:00 UTC.
+
+triggers:
+  - id: weekly
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 2 * * 1"
+
+tasks:
+  - id: download_and_upload
+    type: io.kestra.plugin.scripts.python.Script
+    docker:
+      image: python:3.12-slim
+    env:
+      KAGGLE_USERNAME: "{{ envs.KAGGLE_USERNAME }}"
+      KAGGLE_KEY: "{{ envs.KAGGLE_KEY }}"
+      KAGGLE_DATASET: "{{ envs.KAGGLE_DATASET }}"
+      GCS_BUCKET: "{{ envs.GCS_BUCKET }}"
+      GCS_PREFIX: "{{ envs.GCS_PREFIX }}"
+    beforeCommands:
+      - pip install -q kaggle google-cloud-storage
+    script: |
+      import os
+      import zipfile
+      import tempfile
+      from pathlib import Path
+      import kaggle
+      from google.cloud import storage
+
+      dataset_slug = os.environ["KAGGLE_DATASET"]
+      bucket_name  = os.environ["GCS_BUCKET"]
+      prefix       = os.environ.get("GCS_PREFIX", "").strip("/")
+
+      with tempfile.TemporaryDirectory() as tmpdir:
+          download_dir = Path(tmpdir)
+
+          print(f"Downloading {dataset_slug}")
+          kaggle.api.authenticate()
+          kaggle.api.dataset_download_files(dataset_slug, path=str(download_dir), unzip=False)
+
+          for item in list(download_dir.iterdir()):
+              if item.suffix == ".zip":
+                  print(f"Unzipping {item.name}")
+                  with zipfile.ZipFile(item, "r") as zf:
+                      zf.extractall(download_dir)
+                  item.unlink()
+
+          client = storage.Client()
+          bucket = client.bucket(bucket_name)
+
+          for file_path in download_dir.iterdir():
+              if not file_path.is_file():
+                  continue
+              blob_name = f"{prefix}/{file_path.name}" if prefix else file_path.name
+              blob = bucket.blob(blob_name)
+              print(f"Uploading {file_path.name} -> gs://{bucket_name}/{blob_name}")
+              blob.upload_from_filename(str(file_path))
+
+      print("Done!")
