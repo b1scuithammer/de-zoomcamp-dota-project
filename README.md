@@ -7,7 +7,7 @@ A weekly pipeline that downloads a Kaggle dataset into a GCS bucket, running as 
 ## Repository structure
 
 ```
-kaggle-gcs-sync/
+de-zoomcamp-dota-project/
 ├── infra/                  # Terraform configuration
 │   ├── main.tf             # Your existing GCS bucket config
 │   ├── kaggle_sync.tf      # Cloud Run, Scheduler, IAM, Secrets
