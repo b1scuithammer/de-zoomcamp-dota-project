@@ -69,7 +69,7 @@ resource "google_service_account" "kaggle_sync" {
 # Allow it to write to the existing bucket
 resource "google_storage_bucket_iam_member" "kaggle_sync_writer" {
   bucket = local.bucket_name
-  role   = "roles/storage.objectCreator"
+  role   = "roles/storage.objectAdmin"
   member = "serviceAccount:${google_service_account.kaggle_sync.email}"
 }
 
