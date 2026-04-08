@@ -3,7 +3,6 @@ version: "3.8"
 services:
   kestra:
     image: kestra/kestra:latest
-    pull_policy: always
     user: "root"
     command: server local
     ports:
@@ -13,6 +12,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/kestra-wd:/tmp/kestra-wd
       - ${HOME}/.config/gcloud:/root/.config/gcloud
+    env_file:
+      - .env_encoded
     environment:
       KAGGLE_USERNAME: ${KAGGLE_USERNAME}
       KAGGLE_KEY: ${KAGGLE_KEY}

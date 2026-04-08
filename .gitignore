@@ -43,3 +43,7 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Kestra
+*.env_encoded
+
