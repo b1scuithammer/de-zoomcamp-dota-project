@@ -23,9 +23,9 @@ tasks:
     env:
       KAGGLE_USERNAME: "{{ secret('KAGGLE_USERNAME') }}"
       KAGGLE_KEY: "{{ secret('KAGGLE_KEY') }}"
-      KAGGLE_DATASET: "{{ vars.KAGGLE_DATASET }}"
-      GCS_BUCKET: "{{ vars.GCS_BUCKET }}"
-      GCS_PREFIX: "{{ vars.GCS_PREFIX }}"
+      KAGGLE_DATASET: "devinanzelmo/dota-2-matches"
+      GCS_BUCKET: "dota-project-raw-data"
+      GCS_PREFIX: "raw/kaggle"
     beforeCommands:
       - pip install -q kaggle google-cloud-storage
     script: |
