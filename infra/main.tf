@@ -8,14 +8,15 @@ terraform {
 }
 
 provider "google" {
-  project = var.project_id
-  region  = var.region
+  project     = var.project_id
+  region      = var.region
+  credentials = file("${path.module}/creds/terraform-creds.json")
 }
 
 resource "google_storage_bucket" "raw_data" {
   name          = "dota-project-raw-data"
   location      = var.region
-  force_destroy = false
+  force_destroy = true
 
   uniform_bucket_level_access = true
 

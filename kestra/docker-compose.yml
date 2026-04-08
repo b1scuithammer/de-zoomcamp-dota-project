@@ -1,4 +1,3 @@
-version: "3.8"
 
 services:
   kestra:
@@ -11,11 +10,12 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/kestra-wd:/tmp/kestra-wd
-      - ${HOME}/.config/gcloud:/root/.config/gcloud
+      - ./kestra-creds.json:/root/kestra-creds.json:ro
       - ./application.yml:/app/application.yml:ro
     env_file:
       - .env_encoded
     environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/root/kestra-creds.json
       - KAGGLE_DATASET="devinanzelmo/dota-2-matches"
       - GCS_BUCKET="dota-project-raw-data"
       - GCS_PREFIX="raw/kaggle"

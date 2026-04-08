@@ -1,3 +1,5 @@
 kestra:
   secret:
     type: env
+    env:
+      prefix: SECRET_
