@@ -12,6 +12,7 @@ override.tf.json
 *_override.tf.json
 crash.log
 crash.*.log
+infra/job-source.zip
 
 # Kaggle credentials — never commit these
 kaggle.json

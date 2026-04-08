@@ -32,3 +32,5 @@ See the [configuration guide](#) for step-by-step instructions on:
 3. Providing Kaggle credentials via Secret Manager
 4. Running `terraform apply`
 5. Verifying with a manual job execution
+
+The Cloud Run job source is stored in `job/` and Terraform uses Cloud Build to build the container image without needing console setup. Set `cloud_run_image = ""` in `terraform.tfvars` to use the built-in image.
