@@ -17,3 +17,12 @@ output "service_account_email" {
   description = "Service account used by Cloud Run and Cloud Scheduler."
   value       = google_service_account.kaggle_sync.email
 }
+
+output "looker_studio_service_account_email" {
+  description = "Service account email used by Looker Studio to query BigQuery."
+  value       = google_service_account.looker_studio.email
+}
+
+output "function_url" {
+  value = google_cloudfunctions2_function.bq_loader.service_config[0].uri
+}

@@ -148,6 +148,12 @@ resource "google_cloud_run_v2_job" "kaggle_sync" {
       containers {
         image = local.cloud_run_image
 
+        resources {
+          limits = {
+            memory = "2Gi"
+          }
+        }
+
         env {
           name  = "KAGGLE_USERNAME"
           value = var.kaggle_username
