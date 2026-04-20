@@ -3,7 +3,7 @@ resource "google_bigquery_data_transfer_config" "stg_player_hero_wins" {
   data_source_id         = "scheduled_query"
   destination_dataset_id = google_bigquery_dataset.zoomcamp_dota_project.dataset_id
   location               = var.region
-  schedule               = "every monday 03:00"
+  schedule               = "every day 03:00"
 
   params = {
     query = <<-SQL
@@ -33,7 +33,7 @@ resource "google_bigquery_data_transfer_config" "total_matches_view" {
   data_source_id         = "scheduled_query"
   destination_dataset_id = google_bigquery_dataset.zoomcamp_dota_project.dataset_id
   location               = var.region
-  schedule               = "every monday 03:00"
+  schedule               = "every day 03:00"
 
   params = {
     query = <<-SQL
@@ -51,7 +51,7 @@ resource "google_bigquery_data_transfer_config" "stg_high_skill_player" {
   data_source_id         = "scheduled_query"
   destination_dataset_id = google_bigquery_dataset.zoomcamp_dota_project.dataset_id
   location               = var.region
-  schedule               = "every monday 03:05"
+  schedule               = "every day 03:05"
 
   params = {
     query = <<-SQL
@@ -81,7 +81,7 @@ resource "google_bigquery_data_transfer_config" "stg_low_skill_player" {
   data_source_id         = "scheduled_query"
   destination_dataset_id = google_bigquery_dataset.zoomcamp_dota_project.dataset_id
   location               = var.region
-  schedule               = "every monday 03:05"
+  schedule               = "every day 03:05"
 
   params = {
     query = <<-SQL
@@ -111,7 +111,7 @@ resource "google_bigquery_data_transfer_config" "hero_pick_and_win_rates" {
   data_source_id         = "scheduled_query"
   destination_dataset_id = google_bigquery_dataset.zoomcamp_dota_project.dataset_id
   location               = var.region
-  schedule               = "every monday 03:10"
+  schedule               = "every day 03:10"
 
   depends_on = [
     google_bigquery_data_transfer_config.stg_player_hero_wins,
@@ -142,50 +142,135 @@ resource "google_bigquery_data_transfer_config" "hero_pick_and_win_rates" {
   }
 }
 
-resource "google_bigquery_data_transfer_config" "hero_win_rate_difference" {
-  display_name           = "hero win rate difference"
+resource "google_bigquery_data_transfer_config" "low_skill_pick_and_win_rates" {
+  display_name           = "low skill pick and win rates"
   data_source_id         = "scheduled_query"
   destination_dataset_id = google_bigquery_dataset.zoomcamp_dota_project.dataset_id
   location               = var.region
-  schedule               = "every monday 03:15"
+  schedule               = "every day 03:10"
 
   depends_on = [
     google_bigquery_data_transfer_config.stg_player_hero_wins,
-    google_bigquery_data_transfer_config.stg_high_skill_player,
     google_bigquery_data_transfer_config.stg_low_skill_player,
   ]
 
   params = {
     query = <<-SQL
-      CREATE OR REPLACE TABLE `${var.project_id}.zoomcamp_dota_project.hero_win_rate_difference` AS
-      WITH high_skill_win_rates AS (
-        SELECT
-          phw.hero_id,
-          SUM(phw.is_win) / COUNT(*) AS win_rate
-        FROM `${var.project_id}.zoomcamp_dota_project.stg_player_hero_wins` phw
-        JOIN `${var.project_id}.zoomcamp_dota_project.stg_high_skill_player` hsp
-          ON phw.account_id = hsp.account_id
-        GROUP BY phw.hero_id
+      CREATE OR REPLACE TABLE `${var.project_id}.zoomcamp_dota_project.low_skill_pick_and_win_rates` AS
+      WITH low_skill_matches AS (
+        SELECT DISTINCT
+          s.match_id
+        FROM
+          `${var.project_id}.zoomcamp_dota_project.stg_player_hero_wins` AS s
+        JOIN
+          `${var.project_id}.zoomcamp_dota_project.stg_low_skill_player` AS lsp
+          ON s.account_id = lsp.account_id
       ),
-      low_skill_win_rates AS (
+      total_low_skill_matches AS (
         SELECT
-          phw.hero_id,
-          SUM(phw.is_win) / COUNT(*) AS win_rate
-        FROM `${var.project_id}.zoomcamp_dota_project.stg_player_hero_wins` phw
-        JOIN `${var.project_id}.zoomcamp_dota_project.stg_low_skill_player` lsp
-          ON phw.account_id = lsp.account_id
-        GROUP BY phw.hero_id
+          COUNT(match_id) AS total_matches
+        FROM
+          low_skill_matches
       )
       SELECT
-        hn.localized_name,
-        hswr.win_rate - lswr.win_rate AS win_rate_difference
-      FROM high_skill_win_rates hswr
-      JOIN low_skill_win_rates lswr
-        ON hswr.hero_id = lswr.hero_id
-      JOIN `${var.project_id}.zoomcamp_dota_project.hero_names` hn
-        ON hswr.hero_id = hn.hero_id
+        h.localized_name,
+        COUNT(s.match_id) / tlsm.total_matches AS pick_rate,
+        SUM(s.is_win) / COUNT(s.match_id) AS win_rate
+      FROM
+        `${var.project_id}.zoomcamp_dota_project.stg_player_hero_wins` AS s
+      JOIN
+        `${var.project_id}.zoomcamp_dota_project.stg_low_skill_player` AS lsp
+        ON s.account_id = lsp.account_id
+      JOIN
+        `${var.project_id}.zoomcamp_dota_project.hero_names` AS h
+        ON s.hero_id = h.hero_id
+      CROSS JOIN
+        total_low_skill_matches AS tlsm
+      GROUP BY
+        h.localized_name,
+        tlsm.total_matches
       ORDER BY
-        ABS(win_rate_difference) DESC
+        pick_rate DESC,
+        win_rate ASC
+    SQL
+  }
+}
+
+resource "google_bigquery_data_transfer_config" "high_skill_pick_and_win_rates" {
+  display_name           = "high skill pick and win rates"
+  data_source_id         = "scheduled_query"
+  destination_dataset_id = google_bigquery_dataset.zoomcamp_dota_project.dataset_id
+  location               = var.region
+  schedule               = "every day 03:10"
+
+  depends_on = [
+    google_bigquery_data_transfer_config.stg_player_hero_wins,
+    google_bigquery_data_transfer_config.stg_high_skill_player,
+  ]
+
+  params = {
+    query = <<-SQL
+      CREATE OR REPLACE TABLE `${var.project_id}.zoomcamp_dota_project.high_skill_pick_and_win_rates` AS
+      WITH high_skill_matches AS (
+        SELECT DISTINCT
+          s.match_id
+        FROM
+          `${var.project_id}.zoomcamp_dota_project.stg_player_hero_wins` AS s
+        JOIN
+          `${var.project_id}.zoomcamp_dota_project.stg_high_skill_player` AS hsp
+          ON s.account_id = hsp.account_id
+      ),
+      total_high_skill_matches AS (
+        SELECT
+          COUNT(match_id) AS total_matches
+        FROM
+          high_skill_matches
+      )
+      SELECT
+        h.localized_name,
+        COUNT(s.match_id) / thsm.total_matches AS pick_rate,
+        SUM(s.is_win) / COUNT(s.match_id) AS win_rate
+      FROM
+        `${var.project_id}.zoomcamp_dota_project.stg_player_hero_wins` AS s
+      JOIN
+        `${var.project_id}.zoomcamp_dota_project.stg_high_skill_player` AS hsp
+        ON s.account_id = hsp.account_id
+      JOIN
+        `${var.project_id}.zoomcamp_dota_project.hero_names` AS h
+        ON s.hero_id = h.hero_id
+      CROSS JOIN
+        total_high_skill_matches AS thsm
+      GROUP BY
+        h.localized_name,
+        thsm.total_matches
+      ORDER BY
+        pick_rate DESC,
+        win_rate ASC
+    SQL
+  }
+}
+
+resource "google_bigquery_data_transfer_config" "pearson_coefficients" {
+  display_name           = "Pearson correlation coefficients"
+  data_source_id         = "scheduled_query"
+  destination_dataset_id = google_bigquery_dataset.zoomcamp_dota_project.dataset_id
+  location               = var.region
+  schedule               = "every day 03:15"
+
+  depends_on = [
+    google_bigquery_data_transfer_config.hero_pick_and_win_rates,
+    google_bigquery_data_transfer_config.low_skill_pick_and_win_rates,
+    google_bigquery_data_transfer_config.high_skill_pick_and_win_rates,
+  ]
+
+  params = {
+    query = <<-SQL
+      CREATE OR REPLACE TABLE `${var.project_id}.zoomcamp_dota_project.pearson_coefficients` AS
+      SELECT "All Players" as player_skill_level, CORR(pick_rate, win_rate) as correlation_coefficient FROM `${var.project_id}.zoomcamp_dota_project.hero_pick_and_win_rates`
+      UNION ALL
+      SELECT "Low-skill players" as player_skill_level, CORR(pick_rate, win_rate) as correlation_coefficient FROM `${var.project_id}.zoomcamp_dota_project.low_skill_pick_and_win_rates`
+      UNION ALL
+      SELECT "High-skill players" as player_skill_level, CORR(pick_rate, win_rate) as correlation_coefficient FROM `${var.project_id}.zoomcamp_dota_project.high_skill_pick_and_win_rates`
     SQL
   }
 }

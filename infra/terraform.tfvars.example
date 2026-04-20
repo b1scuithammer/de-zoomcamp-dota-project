@@ -12,7 +12,7 @@ kaggle_dataset  = "username/dataset-name"
 cloud_run_image = ""
 
 gcs_prefix     = "raw/kaggle"
-scheduler_cron = "0 2 * * 1"  # Every Monday at 02:00 UTC
+scheduler_cron = "0 2 * * *"  # Every day at 02:00 UTC
 
 # Relative path to job source (default: ../job)
 job_source_dir = "../job"

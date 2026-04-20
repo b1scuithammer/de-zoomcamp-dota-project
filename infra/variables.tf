@@ -34,7 +34,7 @@ variable "cloud_run_image" {
 variable "scheduler_cron" {
   description = "Cron schedule for the Cloud Scheduler job"
   type        = string
-  default     = "0 2 * * 1"
+  default     = "0 2 * * *"
 }
 
 variable "gcs_prefix" {

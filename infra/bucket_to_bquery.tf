@@ -57,7 +57,7 @@ resource "google_cloud_run_service_iam_member" "invoker" {
 
 resource "google_cloud_scheduler_job" "daily_load" {
   name      = "bq-daily-load"
-  schedule  = "30 2 * * 1"
+  schedule  = "30 2 * * *"
   time_zone = "Europe/Amsterdam"
 
   http_target {
