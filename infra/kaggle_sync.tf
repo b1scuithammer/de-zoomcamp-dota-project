@@ -139,6 +139,8 @@ resource "google_cloud_run_v2_job" "kaggle_sync" {
   name     = "kaggle-sync-job"
   location = var.region
 
+  deletion_protection = false
+
   depends_on = [null_resource.build_job_image]
 
   template {
