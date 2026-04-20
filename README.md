@@ -2,7 +2,7 @@
 This project aims to investigate the relation between the pick rate and win rate of certain heroes in DOTA.
 We initially hypothesized that there would be a weak correlation between pick and win rate, but that this correlation got stronger as people moved from low- to high-skill. This turned out to be the case, but funnily enough it seems that for both high-skill and low-skill players this correlation turned out to be lower than average. We believe this is probably the case, because we filter out players with fewer than 10 matches played and that people just starting out tend to gravitate towards heroes who are "objectively stronger" before they figure out the heroes they have an affinity for.
 
-The project uses terraform to create Google Cloud resources, which download a Kaggle dataset into a Google Cloud bucket, load this dataset into Bigquery and Transforms the data into the correct format. We use clustering on one of the bigquery tables, but because we only sort on very small tables (there are only about 100 heroes in the game) partitioning was deemed unnecesary.
+The project uses terraform to create Google Cloud resources, which download a Kaggle dataset into a Google Cloud bucket, load this dataset into Bigquery and Transforms the data into the correct format. We use clustering on one of the bigquery tables, but because we only sort on very small tables (there are only about 100 heroes in the game) partitioning was deemed unnecesary. The final results are collated in a Looker Studio report: [Dota Hero Pick and Win Rate Report](https://datastudio.google.com/reporting/ce7bf1b9-eb16-4be1-b25f-a3831037442e) 
 
 ## Setup
 
