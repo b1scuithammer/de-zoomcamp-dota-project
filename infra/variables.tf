@@ -24,6 +24,7 @@ variable "kaggle_key" {
 variable "kaggle_dataset" {
   description = "Kaggle dataset slug, e.g. username/dataset-name"
   type        = string
+  default     = "devinanzelmo/dota-2-matches"
 }
 
 variable "cloud_run_image" {

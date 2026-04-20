@@ -266,7 +266,7 @@ resource "google_bigquery_data_transfer_config" "pearson_coefficients" {
   params = {
     query = <<-SQL
       CREATE OR REPLACE TABLE `${var.project_id}.zoomcamp_dota_project.pearson_coefficients` AS
-      SELECT "All Players" as player_skill_level, CORR(pick_rate, win_rate) as correlation_coefficient FROM `${var.project_id}.zoomcamp_dota_project.hero_pick_and_win_rates`
+      SELECT "All players" as player_skill_level, CORR(pick_rate, win_rate) as correlation_coefficient FROM `${var.project_id}.zoomcamp_dota_project.hero_pick_and_win_rates`
       UNION ALL
       SELECT "Low-skill players" as player_skill_level, CORR(pick_rate, win_rate) as correlation_coefficient FROM `${var.project_id}.zoomcamp_dota_project.low_skill_pick_and_win_rates`
       UNION ALL

@@ -6,7 +6,6 @@ region         = "europe-west4"
 
 kaggle_username = "your-kaggle-username"
 kaggle_key      = "your-kaggle-api-key"
-kaggle_dataset  = "username/dataset-name"
 
 # Leave empty to use the built-in Cloud Build image from job/ directory
 cloud_run_image = ""
